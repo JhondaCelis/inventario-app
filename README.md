@@ -183,16 +183,3 @@ feature/inventario
 Autor
 
 Jhon Dairo Celis Quintero
-
-
----
-
-# Paso 18 — Commit del README
-
-Desde la raíz:
-
-```powershell
-git status
-git add README.md
-git commit -m "docs: agregar instrucciones de ejecucion y decisiones tecnicas"
-git push
