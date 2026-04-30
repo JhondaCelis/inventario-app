@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { errorMiddleware } from './middlewares/error.middleware';
 
 const app = express();
 const port = 3000;
@@ -19,6 +20,8 @@ app.get('/api/health', (req, res) => {
     message: 'Backend de inventario funcionando correctamente'
   });
 });
+
+app.use(errorMiddleware);
 
 app.listen(port, () => {
   console.log(`Servidor ejecutándose en http://localhost:${port}`);
