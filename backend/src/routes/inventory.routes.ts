@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { movimientos, productos } from '../data/mock-data';
-import { Movimiento, TipoMovimiento } from '../models/inventory.models';
+import { Alerta, Movimiento, TipoMovimiento } from '../models/inventory.models';
 import { AppError } from '../errors/app-error';
 
 export const inventoryRouter = Router();
@@ -93,4 +93,24 @@ inventoryRouter.post('/productos/:id/movimiento', (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+/*
+USO DE IA:
+Consulta realizada: ¿Cómo generar alertas de bajo stock a partir de productos mock en una API de inventario?
+Sugerencia recibida: Filtrar los productos cuyo stock actual sea menor al stock mínimo y mapearlos a una estructura de alerta.
+Decisión técnica: Implementé el endpoint /alertas calculando las alertas en memoria para mantener la solución simple y alineada con el uso de datos mock.
+*/
+inventoryRouter.get('/alertas', (req, res) => {
+  const alertas: Alerta[] = productos
+    .filter(producto => producto.stockActual < producto.stockMinimo)
+    .map(producto => ({
+      productoId: producto.id,
+      nombreProducto: producto.nombre,
+      categoria: producto.categoria,
+      stockActual: producto.stockActual,
+      stockMinimo: producto.stockMinimo,
+      mensaje: `El producto ${producto.nombre} está por debajo del stock mínimo`
+    }));
+
+  res.json(alertas);
 });
