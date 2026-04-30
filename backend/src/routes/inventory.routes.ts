@@ -4,12 +4,18 @@ import { Alerta, Movimiento, TipoMovimiento } from '../models/inventory.models';
 import { AppError } from '../errors/app-error';
 
 export const inventoryRouter = Router();
+const normalizarTexto = (valor: string): string =>
+  valor
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
 
 /*
 USO DE IA:
-Consulta realizada: ¿Cómo implementar filtros opcionales en un endpoint GET de Express con TypeScript?
-Sugerencia recibida: Leer los query params y aplicar filtros progresivos sobre el arreglo de productos.
-Decisión técnica: Implementé filtros simples por categoría y bajo mínimo para mantener el endpoint claro, tipado y fácil de probar.
+Consulta realizada: ¿Cómo hacer que el filtro por categoría sea más flexible en una API Express?
+Sugerencia recibida: Normalizar los textos quitando tildes, convirtiendo a minúsculas y permitiendo coincidencias parciales.
+Decisión técnica: Ajusté el filtro por categoría para evitar errores cuando el usuario escriba sin tilde o solo parte del nombre.
 */
 inventoryRouter.get('/productos', (req, res) => {
   const { categoria, bajoMinimo } = req.query;
@@ -17,13 +23,14 @@ inventoryRouter.get('/productos', (req, res) => {
   let resultado = [...productos];
 
   if (categoria) {
-    resultado = resultado.filter(
-      producto =>
-        producto.categoria.toLowerCase() === String(categoria).toLowerCase()
+    const categoriaBuscada = normalizarTexto(String(categoria));
+
+    resultado = resultado.filter(producto =>
+      normalizarTexto(producto.categoria).includes(categoriaBuscada)
     );
   }
 
-  if (bajoMinimo === 'true') {
+  if (String(bajoMinimo).toLowerCase() === 'true') {
     resultado = resultado.filter(
       producto => producto.stockActual < producto.stockMinimo
     );

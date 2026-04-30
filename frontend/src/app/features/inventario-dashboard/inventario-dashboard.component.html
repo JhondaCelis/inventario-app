@@ -12,11 +12,12 @@
     <form [formGroup]="filtrosForm" (ngSubmit)="aplicarFiltros()" class="filters">
       <label>
         Categoría
-        <input
-          type="text"
-          formControlName="categoria"
-          placeholder="Ej: Tecnología, Oficina, Papelería"
-        />
+        <select formControlName="categoria">
+          <option value="">Todas las categorías</option>
+          <option *ngFor="let categoria of categorias" [value]="categoria">
+            {{ categoria }}
+          </option>
+        </select>
       </label>
 
       <label class="checkbox">
@@ -31,6 +32,86 @@
         </button>
       </div>
     </form>
+  </section>
+
+  <section class="card alerts-card">
+    <div class="section-title">
+      <div>
+        <h2>Alertas de bajo stock</h2>
+        <p>Productos que requieren revisión porque están por debajo del mínimo.</p>
+      </div>
+      <button type="button" class="secondary" (click)="cargarAlertas()">
+        Actualizar alertas
+      </button>
+    </div>
+
+    <p *ngIf="cargandoAlertas">Cargando alertas...</p>
+
+    <div *ngIf="!cargandoAlertas && alertas.length === 0" class="success-box">
+      No hay productos por debajo del stock mínimo.
+    </div>
+
+    <div *ngIf="!cargandoAlertas && alertas.length > 0" class="alerts-grid">
+      <article *ngFor="let alerta of alertas" class="alert-item">
+        <div class="alert-item__icon">!</div>
+
+        <div>
+          <h3>{{ alerta.nombreProducto }}</h3>
+          <p>{{ alerta.mensaje }}</p>
+
+          <div class="alert-item__details">
+            <span>Categoría: {{ alerta.categoria }}</span>
+            <span>Stock actual: {{ alerta.stockActual }}</span>
+            <span>Mínimo: {{ alerta.stockMinimo }}</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Registrar movimiento de stock</h2>
+
+    <form [formGroup]="movimientoForm" (ngSubmit)="registrarMovimiento()" class="movement-form">
+      <label>
+        Producto
+        <select formControlName="productoId">
+          <option [ngValue]="null">Seleccione un producto</option>
+          <option *ngFor="let producto of productos" [ngValue]="producto.id">
+            {{ producto.nombre }} - Stock actual: {{ producto.stockActual }}
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Tipo de movimiento
+        <select formControlName="tipo">
+          <option *ngFor="let tipo of tiposMovimiento" [value]="tipo">
+            {{ tipo }}
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Cantidad
+        <input type="number" formControlName="cantidad" min="1" />
+      </label>
+
+      <label>
+        Observación
+        <input type="text" formControlName="observacion" placeholder="Ej: Venta, compra a proveedor o ajuste" />
+      </label>
+
+      <div class="actions">
+        <button type="submit" [disabled]="guardandoMovimiento">
+          {{ guardandoMovimiento ? 'Guardando...' : 'Registrar movimiento' }}
+        </button>
+      </div>
+    </form>
+
+    <p *ngIf="mensajeExito" class="success">
+      {{ mensajeExito }}
+    </p>
   </section>
 
   <section class="card">
@@ -64,12 +145,8 @@
           <td>{{ producto.stockMinimo }}</td>
           <td>{{ producto.precio }}</td>
           <td>
-            <span
-              class="badge"
-              [class.badge--danger]="producto.stockActual < producto.stockMinimo"
-            >
-              {{ producto.stockActual < producto.stockMinimo ? 'Bajo mínimo' : 'Disponible' }}
-            </span>
+            <span class="badge" [class.badge--danger]="producto.stockActual < producto.stockMinimo">
+              {{ producto.stockActual < producto.stockMinimo ? 'Bajo mínimo' : 'Disponible' }} </span>
           </td>
         </tr>
 
