@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { errorMiddleware } from './middlewares/error.middleware';
+import { inventoryRouter } from './routes/inventory.routes';
 
 const app = express();
 const port = 3000;
@@ -13,6 +14,7 @@ Decisión técnica: Implementé una configuración mínima con una ruta /api/hea
 */
 app.use(cors());
 app.use(express.json());
+app.use('/api', inventoryRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({
