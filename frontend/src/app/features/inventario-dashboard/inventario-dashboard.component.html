@@ -1,0 +1,84 @@
+<section class="dashboard">
+  <header class="dashboard__header">
+    <div>
+      <h1>Gestión de inventario</h1>
+      <p>Consulta productos, filtra por categoría y revisa productos bajo mínimo.</p>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>Filtros</h2>
+
+    <form [formGroup]="filtrosForm" (ngSubmit)="aplicarFiltros()" class="filters">
+      <label>
+        Categoría
+        <input
+          type="text"
+          formControlName="categoria"
+          placeholder="Ej: Tecnología, Oficina, Papelería"
+        />
+      </label>
+
+      <label class="checkbox">
+        <input type="checkbox" formControlName="bajoMinimo" />
+        Solo productos bajo mínimo
+      </label>
+
+      <div class="actions">
+        <button type="submit">Aplicar filtros</button>
+        <button type="button" class="secondary" (click)="limpiarFiltros()">
+          Limpiar
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Productos</h2>
+
+    <p *ngIf="cargando">Cargando productos...</p>
+
+    <p *ngIf="error" class="error">
+      {{ error }}
+    </p>
+
+    <table *ngIf="!cargando && !error">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th>Stock actual</th>
+          <th>Stock mínimo</th>
+          <th>Precio</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let producto of productos">
+          <td>{{ producto.id }}</td>
+          <td>{{ producto.nombre }}</td>
+          <td>{{ producto.categoria }}</td>
+          <td>{{ producto.stockActual }}</td>
+          <td>{{ producto.stockMinimo }}</td>
+          <td>{{ producto.precio }}</td>
+          <td>
+            <span
+              class="badge"
+              [class.badge--danger]="producto.stockActual < producto.stockMinimo"
+            >
+              {{ producto.stockActual < producto.stockMinimo ? 'Bajo mínimo' : 'Disponible' }}
+            </span>
+          </td>
+        </tr>
+
+        <tr *ngIf="productos.length === 0">
+          <td colspan="7" class="empty">
+            No se encontraron productos con los filtros seleccionados.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</section>
